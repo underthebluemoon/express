@@ -1,6 +1,7 @@
 import express from 'express'; // express 모듈 가져오기
 import authRouter from './routes/auth.router.js';
 import usersRouter from './routes/users.router.js';
+import { eduTest } from './app/middlewares/edu/edu.middleware.js';
 
   // app에 express 객체를 담아둠
 const app = express()
@@ -10,6 +11,7 @@ app.use(express.json()); // json으로 요청이 올 경우 파싱 처리
                           // 해당 처리가 없을 경우, json으로 온 데이터 받을 수 없음
       // express.json() : express가 제공하는 미들웨어 생성 함수
   // app.use() : 등록하여 미들웨어로 작동
+app.use(eduTest); // 커스텀 미들웨어 전역 등록 (위 -> 아래 순으로 이동)
 
 
 // 클라이언트가 '/api/hi' 경로로 GET 요청을 보낼 때 실행되는 Router
@@ -93,7 +95,12 @@ app.post('/api/posts', (request, response, next) => {
 // 라우트를 모듈로 나누고 그룹핑하여 관리
 app.use('/api', authRouter);
 app.use(usersRouter);
-
+// 공통되는 path 값을 지정해둘 수 있음. (해당 router에서는 해당 path값을 빼고 설정)
+// app.use('/api/users', usersRouter);
+//                          ↓ 해당 처리 실행 전, 실행 할 미들웨어
+// app.use('/api/users', eduUsersTest, usersRouter, eduUsersTest);
+//                           해당 처리 실행 후, 실행 할 미들웨어 ↑
+//                           router에서 next() 호출 필요 
 
 // -------------------------------------------------------------
 // 대체 라우트 (모든 라우터 중에 가장 마지막에 작성)
