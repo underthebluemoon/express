@@ -1,8 +1,16 @@
 import express from 'express'; // express 모듈 가져오기
+import authRouter from './routes/auth.router.js';
+import usersRouter from './routes/users.router.js';
 
   // app에 express 객체를 담아둠
 const app = express()
           // express 객체를 반환하는 함수
+// 아래 전체 route 에 대한 middleware 세팅 (클라이언트↔서버 응답 주고 받는 사이사이 실행할 것들)
+app.use(express.json()); // json으로 요청이 올 경우 파싱 처리
+                          // 해당 처리가 없을 경우, json으로 온 데이터 받을 수 없음
+      // express.json() : express가 제공하는 미들웨어 생성 함수
+  // app.use() : 등록하여 미들웨어로 작동
+
 
 // 클라이언트가 '/api/hi' 경로로 GET 요청을 보낼 때 실행되는 Router
 // 유저가 http메소드 get('') 요청한 것을 지정
@@ -32,6 +40,8 @@ app.delete('/api/hi', (request, response, next) => {
 })
 
 // -------------------------------------------------------------
+// parameter 제어
+// -------------------------------------------------------------
 // Query Parameter 제어
 // 도메인?key=value로  이루어진 파라미터
 // Request.query 프로퍼티를 통해서 접근 가능
@@ -55,9 +65,39 @@ app.get('/api/posts/:id', (request, response, next) => {
   response.status(200).send(postId);
 });
 
+// JSON 요청 제어
+// 전통적인 데이터 교환 방식 : form 태그
+// const form = new FormData();
+// form.append('key1', 'val1');
+// json 파싱처리 필요
+// Request.body 흫 통해서 접근 가능 (**express.json() 추가 필요**)
+app.post('/api/posts', (request, response, next) => {
+  const {account, password, name} = request.body;
+  // detructuring ↵ 따로 일일히 받아도 됨 ↴
+  // const account = request.body.account;
+  // const password = request.body.password;
+  // const name = request.body.name;
+  response.status(200).send({account, password, name});
+  // 따로 일일히 받아도 됨 ↴   detructuring ↵
+  // response.status(200).send({
+  //   password: password
+  //   , account : account
+  //   , name: name
+  // });
+
+});
+
+// -------------------------------------------------------------
+// 라우트 그룹
+// -------------------------------------------------------------
+// 라우트를 모듈로 나누고 그룹핑하여 관리
+app.use('/api', authRouter);
+app.use(usersRouter);
+
 
 // -------------------------------------------------------------
 // 대체 라우트 (모든 라우터 중에 가장 마지막에 작성)
+// -------------------------------------------------------------
 // 라우트를 위에 모두 정의 한 뒤 (위 -> 아래 방향으로 실행)
 // use : get, put, post, ... 모든 경로를 다 받음
 //       path 필요 없음
