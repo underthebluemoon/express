@@ -24,7 +24,9 @@ middlewares/
 # DB 연동
 ## 설치
 ```
-npm install mysql2
+npm install mysql2 sequelize sequelize-cli
+                    ↳ ORM
+            ↳ library        
 ```
 
 
