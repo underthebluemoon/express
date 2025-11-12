@@ -2,6 +2,7 @@ import express from 'express'; // express 모듈 가져오기
 import authRouter from './routes/auth.router.js';
 import usersRouter from './routes/users.router.js';
 import { eduTest } from './app/middlewares/edu/edu.middleware.js';
+import { errorHandler } from './app/middlewares/errors/error-handler.js';
 
   // app에 express 객체를 담아둠
 const app = express()
@@ -102,6 +103,21 @@ app.use(usersRouter);
 //                           해당 처리 실행 후, 실행 할 미들웨어 ↑
 //                           router에서 next() 호출 필요 
 
+// 에러 테스트용 라우터
+app.get('/error', (request, response, next) => {
+  // `throw`를 이용하여 에러 핸들링 처리도 가능
+  // (비동기 처리 내부에서 사용하면 에러 핸들러가 핸들링 못 함 -> server crashed)
+  // throw new Error('쓰로우로 예외 발생');
+
+  // next(error)
+  // 비동기 처리 내부에서는 반드시 `next(error)`를 이용해야 서버 crashed 안 일어남
+  setTimeout(() => {
+    next(new Error('쓰로우로 예외 발생'))
+  }, 1000);
+  // throw: 비동기 처리 내부의 에러일 땐, handler 함수에서 캐치 불가
+  // -> throw처리보다 next 처리가 안전
+})
+
 // -------------------------------------------------------------
 // 대체 라우트 (모든 라우터 중에 가장 마지막에 작성)
 // -------------------------------------------------------------
@@ -116,6 +132,14 @@ app.use((request, response, next) => {
   })
 });
 
+
+// -------------------------------------------------------------
+// Error Handler 등록
+// -------------------------------------------------------------
+app.use(errorHandler);
+  // validation error는 errorHandler에서 주울 수 주 없음
+  // (캐치하도록 할 수 있으나, error의 성격이 달라, 따로 관리하는 것이 용이)
+  // -> validationHandler 따로 필요
 
 // 서버를 주어진 포트에서 시작하게 만듦
         // port
