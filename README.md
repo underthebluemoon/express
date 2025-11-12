@@ -21,6 +21,13 @@ middlewares/
         ↳ 유효성 검사 통과 여부에 따른 공통 처리 미들웨어
 ```
 
+# DB 연동
+## 설치
+```
+npm install mysql2
+```
+
+
 # 기본 RESPONSE 양식
 
 ## 예시
