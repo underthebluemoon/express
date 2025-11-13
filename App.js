@@ -3,6 +3,7 @@ import authRouter from './routes/auth.router.js';
 import usersRouter from './routes/users.router.js';
 import { eduTest } from './app/middlewares/edu/edu.middleware.js';
 import { errorHandler } from './app/middlewares/errors/error-handler.js';
+import eduRouter from './routes/edu.router.js';
 
   // app에 express 객체를 담아둠
 const app = express()
@@ -102,6 +103,7 @@ app.use(usersRouter);
 // app.use('/api/users', eduUsersTest, usersRouter, eduUsersTest);
 //                           해당 처리 실행 후, 실행 할 미들웨어 ↑
 //                           router에서 next() 호출 필요 
+app.use(eduRouter);
 
 // 에러 테스트용 라우터
 app.get('/error', (request, response, next) => {
