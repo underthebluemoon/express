@@ -4,7 +4,7 @@ import db from '../app/models/index.js';
 import { Op, Sequelize } from 'sequelize';
 import dayjs from 'dayjs';
 //       ↱ connection pool, 내가 만든 것
-const { sequelize, Employee } = db;
+const { sequelize, Employee, TitleEmp, Title } = db;
 //                  ↳ db 에서 가져와야 함. model 정의 파일에서 가져오면 안 됨!
 
 const eduRouter = express.Router();
@@ -254,6 +254,41 @@ eduRouter.get('/api/edu', async(request, response, next) => {
     //   //                 ↱ 함수
     //   having: sequelize.literal('count >= 40000'),
     // })
+
+    // 13. JOIN
+    result = await Employee.findOne({
+      // ORM 특징 : {첫 테이블 데이터의 프로퍼티(AS명)로 {조인 테이블 데이터}}
+      //  ↱ 기준 테이블에서 출력할 데이터
+      attributes: ['empId', 'name'],
+      where: {
+        empId: 1
+      },
+      //  ↱ JOIN
+      include: [
+        {
+          model: TitleEmp,  // 내가 연결할 모델
+          as: 'titleEmps',  // 내가 사용할 관계
+          required: true,   // `true`: INNER JOIN/ `false`: LEFT OUTER JOIN
+          //  ↱ JOIN한 테이블에서 출력할 데이터
+          attributes: ['titleCode'],
+          where: {
+            endAt: {
+              [Op.is]: null,
+            }
+          },
+          //  ↱ JOIN 2 : TitleEmp를 기준으로 Title을 JOIN
+          include: [
+            {
+              // ↱ model + AS → association 프로퍼티로 연결 가능
+              association: 'title', 
+              required: true,
+              attributes: ['title'],
+            }
+          ]
+        }
+      ],
+    })
+
 
     return response.status(200).send({
       msg: '정상 처리',

@@ -9,13 +9,14 @@ const attributes = {
     field: 'emp_id',                  // DB의 컬럼 physicalname
     //     ↱ sequelize에서 데이터 타입 지정 가능
     type: DataTypes.BIGINT.UNSIGNED,  // 컬럼의 데이터 타입 지정 
-    primaryKey: true,                 // PRIMARY KEY 지정
+    primaryKey: true,                 // PRIMARY KEY 지정 : 지정하지 않을 경우, sequelize에서 id 컬럼(PK)을 생성할 수도 있음
     allowNull: false,                 // NULL 비허용
     autoIncrement: true,              // AUTO_INCREMENT 지정
     comment: '사원 ID',                // 코멘트 설정
   },
   name: {
     field: 'name',
+    //               ↱ VARCHAR
     type: DataTypes.STRING(50),
     allowNull: false, 
     comment: '사원명',
@@ -143,6 +144,16 @@ const Employee = {
     const defineEmployee = sequelize.define(modelName, attributes, options);
 
     return defineEmployee;
+  },
+  // 모델 관계를 정의
+  associate: (db) => {
+    // 1:n 관계에서 부모 모델에 설정하는 방법 (1:n - 1명의 사원은 복수의 직급 정보를 가짐)
+    //  ↱ 1 - 부모 모델   ↱ 2 - 연결할 자식 모델
+    //           ↱ method
+    //                                  ↱ 참조 될 컬럼 (Employee의 empId)
+    //                                                      ↱ 참조 해서 fk 컬럼 (TitleEmp의 empId)
+    //                                                                           ↱ 관계 별칭
+    db.Employee.hasMany(db.TitleEmp, { sourceKey: 'empId', foreignKey: 'empId', as: 'titleEmps'});
   }
 }
 
